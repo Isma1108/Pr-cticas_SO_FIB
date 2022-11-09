@@ -1,0 +1,220 @@
+mem1_previo:
+	Después de usar el comando nm mem1_previo, se observa
+
+										 U atoi@GLIBC_2.2.5
+	0000000000004050 B __bss_start
+	0000000000004050 b completed.0
+									 w __cxa_finalize@GLIBC_2.2.5
+	0000000000004040 D __data_start
+	0000000000004040 W data_start
+	00000000000010c0 t deregister_tm_clones
+	0000000000001130 t __do_global_dtors_aux
+	0000000000003df0 d __do_global_dtors_aux_fini_array_entry
+	0000000000004048 D __dso_handle
+	0000000000003df8 d _DYNAMIC
+	0000000000004050 D _edata
+	0000000000004058 B _end
+									 U exit@GLIBC_2.2.5
+	00000000000012f4 T _fini
+	0000000000001170 t frame_dummy
+	0000000000003de8 d __frame_dummy_init_array_entry
+	000000000000219c r __FRAME_END__
+	0000000000004000 d _GLOBAL_OFFSET_TABLE_
+									 w __gmon_start__
+	0000000000002030 r __GNU_EH_FRAME_HDR
+	0000000000001000 t _init
+	0000000000003df0 d __init_array_end
+	0000000000003de8 d __init_array_start
+	0000000000002000 R _IO_stdin_used
+									 w _ITM_deregisterTMCloneTable
+									 w _ITM_registerTMCloneTable
+	0000000000004054 B j
+	00000000000012f0 T __libc_csu_fini
+	0000000000001290 T __libc_csu_init
+									 U __libc_start_main@GLIBC_2.2.5
+	0000000000001194 T main
+	00000000000010f0 t register_tm_clones
+									 U sprintf@GLIBC_2.2.5
+	0000000000001090 T _start
+									 U strlen@GLIBC_2.2.5
+	0000000000001175 T suma
+	0000000000004050 D __TMC_END__
+									 U write@GLIBC_2.2.5
+
+Se ve que la dirección (de 64 bits) assignada a las variables, junto a sus símbolos es:
+- j: dirección 0x0000000000004054, símbolo B, que indica que la variable j se encuentra
+en la sección de datos BSS, donde se encuentran típicamente las variables globales sin 
+inicializar o inicializadas a 0. (En este caso j no está inicializada)
+
+Por lo que hace a las funciones:
+- main: dirección 0x0000000000001194, símbolo T, que indica que se encuentra en la 
+sección .text, que se trata del código.
+- suma: dirección 0x0000000000001175, símbolo T, se enuentra en la sección .text.
+
+En resumen, los tipos de símbolos que nos muestra nm son:
+A -> The symbol's value is absolute, and will not be changed by further linking.
+B/b -> The symbol is in the BSS data section.  This section typically contains 
+zero-initialized or uninitialized data, although the exact behavior is system dependent.
+C -> The symbol is common.  Common symbols are uninitialized data.  When linking, 
+multiple common symbols may appear with the same name.  If the symbol is defined anywhere, 
+the common symbols are treated as undefined references.
+D -> The symbol is in the initialized data section.
+G/g -> The symbol is in an initialized data section for small objects.  Some object file 
+formats permit more efficient access to small data objects, such as a global int variable 
+as opposed to a large global array.
+I -> The symbol is an indirect reference to another symbol.
+N -> The symbol is a debugging symbol.
+n -> The symbol is in the read-only data section.
+p -> The symbol is in a stack unwind section.
+R/r -> The symbol is in a read only data section.
+S/s -> The symbol is in an uninitialized or zero-initialized data section for small objects.
+T/t -> The symbol is in the text (code) section.
+U -> The symbol is undefined.
+(y algunos mas ...)
+
+SI que es posible saber la dirección de la variable j, ya que se trata de una variable 
+global y el comando nm las muestra. En cambio, mediante el comando nm no podremos saber
+la dirección de la variable i, ya que se trata de una variable local, y el comando nm
+solo nos muestra información de las variables globales y funciones. Las variables globales
+se encuentran en la sección de datos, divididas en una partición para las no inicializadas
+o inicializadas a 0 (.bss) y una para las inicializadas (.data). Por lo que hace a las 
+variables locales se almacenan en la pila de la memoria (stack). La dirección assignada a 
+la función suma se ha mostrado antes.
+
+Para compilar el fichero mem1_previo.c enlazándolo con librerias estáticas he usado el 
+comando gcc -o mem1_previo -static mem1_previo.c. La flag -static es primordial para 
+que se impida el linkaje con librerias compartidas (dinámicas).
+
+El resumen que nos ofrece el man de proc sobre el fichero maps es:
+A file containing the currently mapped memory regions and their access permissions.
+
+	The format of the file is:
+
+			address           perms offset  dev   inode       pathname
+			00400000-00452000 r-xp 00000000 08:02 173521      /usr/bin/dbus-daemon
+			00651000-00652000 r--p 00051000 08:02 173521      /usr/bin/dbus-daemon
+			00652000-00655000 rw-p 00052000 08:02 173521      /usr/bin/dbus-daemon
+			00e03000-00e24000 rw-p 00000000 00:00 0           [heap]
+			00e24000-011f7000 rw-p 00000000 00:00 0           [heap]
+			...
+			35b1800000-35b1820000 r-xp 00000000 08:02 135522  /usr/lib64/ld-2.15.so
+			35b1a1f000-35b1a20000 r--p 0001f000 08:02 135522  /usr/lib64/ld-2.15.so
+			35b1a20000-35b1a21000 rw-p 00020000 08:02 135522  /usr/lib64/ld-2.15.so
+			35b1a21000-35b1a22000 rw-p 00000000 00:00 0
+			35b1c00000-35b1dac000 r-xp 00000000 08:02 135870  /usr/lib64/libc-2.15.so
+			35b1dac000-35b1fac000 ---p 001ac000 08:02 135870  /usr/lib64/libc-2.15.so
+			35b1fac000-35b1fb0000 r--p 001ac000 08:02 135870  /usr/lib64/libc-2.15.so
+			35b1fb0000-35b1fb2000 rw-p 001b0000 08:02 135870  /usr/lib64/libc-2.15.so
+			...
+			f2c6ff8c000-7f2c7078c000 rw-p 00000000 00:00 0    [stack:986]
+			...
+			7fffb2c0d000-7fffb2c2e000 rw-p 00000000 00:00 0   [stack]
+			7fffb2d48000-7fffb2d49000 r-xp 00000000 00:00 0   [vdso]
+
+The address field is the address space in the process that the mapping occupies.  
+The perms field is a set of permissions:
+
+			r = read
+			w = write
+			x = execute
+			s = shared
+			p = private (copy on write)
+
+Salidas para vector con tamaño 10:
+	
+	mem2_previo:
+
+	00400000-00401000 r--p 00000000 103:08 6173093	.../mem2_previo
+	00401000-00489000 r-xp 00001000 103:08 6173093 	.../mem2_previo
+	00489000-004b0000 r--p 00089000 103:08 6173093  .../mem2_previo
+	004b1000-004b4000 r--p 000b0000 103:08 6173093  .../mem2_previo
+	004b4000-004b7000 rw-p 000b3000 103:08 6173093  .../mem2_previo
+	004b7000-004e0000 rw-p 00000000 00:00 0 
+	00ed1000-00ef3000 rw-p 00000000 00:00 0         [heap]
+	7fff5a435000-7fff5a456000 rw-p 00000000 00:00 0 [stack]
+	7fff5a553000-7fff5a557000 r--p 00000000 00:00 0 [vvar]
+	7fff5a557000-7fff5a559000 r-xp 00000000 00:00 0 [vdso]
+
+	Tamaño heap = 0x00ef3000 - 0x00ed1000 = 0x00022000 bytes
+	Tamaño datos = 0x004b7000 - 0x004b4000 = 0x00003000 bytes
+		
+	mem2_previo_v2:
+	
+	00400000-00401000 r--p 00000000 103:08 6173084  .../mem2_previo_v2
+	00401000-00489000 r-xp 00001000 103:08 6173084 	.../mem2_previo_v2
+	00489000-004b0000 r--p 00089000 103:08 6173084  .../mem2_previo_v2
+	004b1000-004b4000 r--p 000b0000 103:08 6173084  .../mem2_previo_v2
+	004b4000-004b7000 rw-p 000b3000 103:08 6173084  .../mem2_previo_v2
+	004b7000-004b8000 rw-p 00000000 00:00 0 
+	00753000-00776000 rw-p 00000000 00:00 0         [heap]
+	7fff7ded1000-7fff7def2000 rw-p 00000000 00:00 0 [stack]
+	7fff7dfc2000-7fff7dfc6000 r--p 00000000 00:00 0 [vvar]
+	7fff7dfc6000-7fff7dfc8000 r-xp 00000000 00:00 0 [vdso]
+
+	Tamaño heap = 0x00776000 - 0x00753000 = 0x00023000 bytes
+	Tamaño datos = 0x004b7000 - 0x004b4000 = 0x00003000 bytes
+
+
+Salidas para vector con tamaño 40000:
+
+	mem2_previo:
+
+	00400000-00401000 r--p 00000000 103:08 6173093  .../mem2_previo
+	00401000-00489000 r-xp 00001000 103:08 6173093  .../mem2_previo
+	00489000-004b0000 r--p 00089000 103:08 6173093  .../mem2_previo
+	004b1000-004b4000 r--p 000b0000 103:08 6173093  .../mem2_previo
+	004b4000-004b7000 rw-p 000b3000 103:08 6173093  .../mem2_previo
+	004b7000-004e0000 rw-p 00000000 00:00 0 
+	00ef5000-00f17000 rw-p 00000000 00:00 0         [heap]
+	7ffd3aa3e000-7ffd3aa5f000 rw-p 00000000 00:00 0 [stack]
+	7ffd3ab94000-7ffd3ab98000 r--p 00000000 00:00 0 [vvar]
+	7ffd3ab98000-7ffd3ab9a000 r-xp 00000000 00:00 0 [vdso]
+
+	Tamaño heap = 0x00f17000 - 0x00ef5000 = 0x00022000 bytes
+	Tamaño datos = 0x004b7000 - 0x004b4000 = 0x00003000 bytes
+
+	mem2_previo_v2:
+
+	00400000-00401000 r--p 00000000 103:08 6173084  .../mem2_previo_v2
+	00401000-00489000 r-xp 00001000 103:08 6173084  .../mem2_previo_v2
+	00489000-004b0000 r--p 00089000 103:08 6173084  .../mem2_previo_v2
+	004b1000-004b4000 r--p 000b0000 103:08 6173084  .../mem2_previo_v2
+	004b4000-004b7000 rw-p 000b3000 103:08 6173084  .../mem2_previo_v2
+	004b7000-004b8000 rw-p 00000000 00:00 0 
+	021cf000-02219000 rw-p 00000000 00:00 0         [heap]
+	7fff29875000-7fff29896000 rw-p 00000000 00:00 0 [stack]
+	7fff299b1000-7fff299b5000 r--p 00000000 00:00 0 [vvar]
+	7fff299b5000-7fff299b7000 r-xp 00000000 00:00 0 [vdso]
+
+	Tamaño heap = 0x02219000 - 0x021cf000 = 0x0004A000 bytes
+	Tamaño datos = 0x004b7000 - 0x004b4000 = 0x00003000 bytes
+
+Se observan claras diferencias en cuanto al tamaño de los heaps. En el caso
+de mem2_previo, tanto con un vector de tamaño 10 como con uno de tamaño
+40000 el tamaño del heap no cambia, ya que en ningun momento se solicita
+memoria dinámica y por lo tanto el heap no crece. En cambio, en el caso de
+mem2_previo_v2 vemos como el heap es mas grande cuando se usa un vector de 
+tamaño 40000, ya que se pide mas memoria dinámica y por lo tanto el heap
+crece mas. En cuanto al tamaño de la sección de datos, no varia. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

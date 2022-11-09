@@ -1,0 +1,71 @@
+ALARM1:
+
+1. Cuando pasan 5 segundos el proceso termina. Esto es debido a que el el proceso se queda
+en espera bloqueante y cuando llega SIGALRM (que no se encuentra en la máscara de bloqueados
+de sigsuspend, y su tratamiento no és ignorar) termina, ya que es su tratamiento por defecto. 
+Respuesta realizada modificando el código cambiando alarm(10) por alarm(5), ya que si no, cuando
+pasan 5 segundos el proceso continua bloqueado.
+
+2. Si antes de que la alarma llegue a 0 envio una señal de tipo SIGKILL al proceso, éste termina
+igual que si recibiera SIGALRM. En la terminal se recibe un mensaje diferente, [1] pid killed,
+a diferencia de cuando se recibe la alarma: [1] pid alarm. A pesar de que pueda parecer
+que SIGKILL està bloqueado en el sigsuspend, hay que recordar que algunas señales como
+SIGKILL y SIGSTOP NO se pueden bloquear. E ahí el motivo por el cual se recibe el signal.
+
+3. El proceso que se encarga de mostrar los mensajes que aparecen en pantalla cuando muere
+el proceso alarm1 és el proceso 1, que és el proceso init (y padre de alarm1). 
+Para recojer el estado de finalización del proceso que ejecuta alarm1 se usa la llamada a 
+sistema waitpid(pid_t, &status, 0), ya que el estado de finalización queda almacenado en &status.
+
+4. Sí que es necesario el exit(1) que hay en el código de alarm1, ya que permitria al proceso
+padre saber si ha fallado el sigsuspend. Se ejecutaría en caso de que sigsuspend fallase por
+algún motivo, y el valor status = 1 indicaria ese caso al padre.
+
+ALARM2:
+
+1. EL comportamiente que observo es que el programa finaliza una vez le envío 10 SIGALRM 
+seguidos mediante kil -ALRM. El control de tiempo no funciona como pretende el codigo, ya que 
+deberia terminar transcurridos 100 segundos y mostrando un mensaje con el tiempo y el pid
+cada 10 segundos.
+
+2. NO, hay signals como SIGKILL O SIGSTOP que no se pueden capturar.
+
+3. El valor de retorno de la llamada alarm es el numero de segundos que le quedaban a la 
+alarma previa, o 0 en caso de que no hubiese una alarma programada antes. Por lo tanto, para
+detectar cuando un SIGALRM nos llega sin estar relacionado con el temporizador podemos cambiar
+alarm(10); por if(alarm(10) > 0) error_y_exit("alarma externa", 2); 
+Esto funciona ya que si se envia un SIGALRM externo al proceso, en el momento de evaluar el 
+valor de retorno será mayor que cero (a no ser que llegue justo cuando se acaban los 10 
+segundos).
+
+ALARM3:
+
+1. Los SIGALRM los recibe tanto el padre como el hijo. Al hacer fork(), los signals pendientes
+NO se heredan, pero la alarma se activa después del fork y, como cada proceso tiene su alarma,
+ambos reciben el signal. Para comprobarlo simplemente me he fijado en que si en la función
+asociada al signal incluyo el mostrar el pid del proceso, cada 10 segundos se ven dos 
+mensajes cada uno con un pid distinto. También lo he comprobado viendo que si envio a 
+cualquiera de los procesos un SIGKILL mediante kill -KILL pid, el proceso que resta vivo sigue
+trabajando y el programa no termina. Es evidente que al hacer un fork, la tabla de acciones 
+asociadas a los signals del proceso padre se heredan.
+
+ALARM4:
+
+1. El proceso hijo programa una alarma, cada 10 segundos, mientras que el padre se queda 
+bloqueado en el sigsuspend y no le llega ningun SIGALRM, ya que los signals son recibidos
+sólo por el proceso que los ha generado. El proceso hijo és el ÚNICO que programa la alarma 
+antes de la espera bloqueante. Para comprobarlo, le he enviado un SIGALRM al proceso padre 
+mediante kill -SIGALRM pid_padre y ha salido del sigsuspend, por lo que ya he podido ver sus
+mensajes cada 10 segundos hasta llegar a 100.
+
+
+
+
+
+
+
+
+
+
+
+

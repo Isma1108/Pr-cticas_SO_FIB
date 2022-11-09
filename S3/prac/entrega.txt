@@ -1,0 +1,260 @@
+18. No hay ninguna llamada a sistema que le permita saber a un proceso
+el PID de sus hijos. La única forma de que un proceso sepa el PID de sus
+hijos es almacenar el valor de retorno de la llamada fork(), que al padre
+le devuelve el PID del hijo creado. Para consultar su propio PID los 
+procesos pueden usar la llamada a sistema getpid(), incluyendo la 
+libreria <unistd.h>
+
+19. Solo se ejecutará el código que aparezca después de la llamada 
+execlp cuando execlp falle, ya que en este caso no cambiaria el 
+binario del proceso.
+
+20. Dentro de /proc/PID_PADRE hay los directorios attr, cwd, exe, fd,
+fdinfo, map_files, net, ns, root y task. He usado "ls -ld */", para 
+poder ver en formato de lista y mostrar todos los directorios sin su 
+contenido.
+
+21.
+Contenido fichero status:
+	Name:	myPS
+	Umask:	0022
+	State:	R (running)
+	Tgid:	7201
+	Ngid:	0
+	Pid:	7201
+	PPid:	6646
+	TracerPid:	0
+	Uid:	1000	1000	1000	1000
+	Gid:	1000	1000	1000	1000
+	FDSize:	64
+	Groups:	24 25 27 29 30 44 46 109 113 119 1000 
+	NStgid:	7201
+	NSpid:	7201
+	NSpgid:	7201
+	NSsid:	6646
+	VmPeak:	   2344 kB
+	VmSize:	   2172 kB
+	VmLck:	      0 kB
+	VmPin:	      0 kB
+	VmHWM:	    504 kB
+	VmRSS:	    504 kB
+	RssAnon:	     64 kB
+	RssFile:	    440 kB
+	RssShmem:	      0 kB
+	VmData:	     48 kB
+	VmStk:	    132 kB
+	VmExe:	      4 kB
+	VmLib:	   1460 kB
+	VmPTE:	     40 kB
+	VmSwap:	      0 kB
+	HugetlbPages:	      0 kB
+	CoreDumping:	0
+	THP_enabled:	1
+	Threads:	1
+	SigQ:	0/27252
+	SigPnd:	0000000000000000
+	ShdPnd:	0000000000000000
+	SigBlk:	0000000000000000
+	SigIgn:	0000000000000000
+	SigCgt:	0000000000000000
+	CapInh:	0000000000000000
+	CapPrm:	0000000000000000
+	CapEff:	0000000000000000
+	CapBnd:	000001ffffffffff
+	CapAmb:	0000000000000000
+	NoNewPrivs:	0
+	Seccomp:	0
+	Seccomp_filters:	0
+	Speculation_Store_Bypass:	thread vulnerable
+	Cpus_allowed:	ffff
+	Cpus_allowed_list:	0-15
+	Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,
+	00000000,00000000,00000000,00000000,00000000,00000000,00000000,
+	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,
+	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,
+	00000000,00000000,00000001
+	Mems_allowed_list:	0
+	voluntary_ctxt_switches:	0
+	nonvoluntary_ctxt_switches:	111853
+
+Contenido fichero cmdline:
+	./myPSismael%
+
+En el fichero environ se ve que:
+	- PWD=/home/ismael/Documents/FIB/segon/SO/S3/prac
+	- PATH=/home/ismael/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
+
+Al ejecutar env se ve que:
+	- PWD=/proc/7201
+	- PATH=/home/ismael/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
+
+Por lo tanto, la relación que hay entre environ y la salida al ejecutar env es que 
+comparten el mismo PATH, la misma variable de entorno.
+
+En el fichero status se puede ver que el proceso está en estado running: State:	R (running)
+
+En cuanto al tiempo de CPU consumido en modo usuario por el proceso, el contenido del fichero
+stat es:
+	7201 (myPS) R 6646 7201 6646 34817 7201 4194304 100 0 0 0 42635 55 0 0 20 0 1 0 324471 2224128 126 
+	18446744073709551615 94499924250624 94499924251485 140735119861792 0 0 0 0 0 0 0 0 0 17 1 0 0 0 0 
+	0 94499924262376 94499924263016 94499944095744 140735119869144 140735119869158 140735119869158 
+	140735119871985 0
+
+Del man de proc se deduce que el argumento 14 es el que hace referencia al tiempo de CPU consumido en
+modo usuario por el proceso, medido en "clock ticks", que es: 42635.
+
+(14) utime  %lu:
+	 Amount  of  time that this process has been scheduled in user mode, measured
+	 in clock ticks (divide by sysconf(_SC_CLK_TCK)).  This includes guest  time,
+	 guest_time  (time  spent running a virtual CPU, see below), so that applica‐
+	 tions that are not aware of the guest time field do not lose that time  from
+	 their calculations.
+
+22. En el caso del proceso hijo, los ficheros cwd y exe no apuntan a nada, ya que éste ha terminado
+su ejecución. Creo que el significado de cwd debe ser "Current Working Directory" y el de exe 
+"Executable Directory". Por ende, como que el proceso ha finalizado, ambos ficheros no apuntan 
+a nada.
+
+23. 
+Contenido fichero environ:
+	(vacio)
+
+Contenido fichero status:
+	Name:	ps
+	State:	Z (zombie)
+	Tgid:	7202
+	Ngid:	0
+	Pid:	7202
+	PPid:	7201
+	TracerPid:	0
+	Uid:	1000	1000	1000	1000
+	Gid:	1000	1000	1000	1000
+	FDSize:	0
+	Groups:	24 25 27 29 30 44 46 109 113 119 1000 
+	NStgid:	3840
+	NSpid:	3840
+	NSpgid:	3839
+	NSsid:	3310
+	Threads:	1
+	SigQ:	0/27252
+	SigPnd:	0000000000000000
+	ShdPnd:	0000000000000000
+	SigBlk:	0000000000000000
+	SigIgn:	0000000000000000
+	SigCgt:	00000001f3d1fef9
+	CapInh:	0000000000000000
+	CapPrm:	0000000000000000
+	CapEff:	0000000000000000
+	CapBnd:	000001ffffffffff
+	CapAmb:	0000000000000000
+	NoNewPrivs:	0
+	Seccomp:	0
+	Seccomp_filters:	0
+	Speculation_Store_Bypass:	thread vulnerable
+	Cpus_allowed:	ffff
+	Cpus_allowed_list:	0-15
+	Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+	Mems_allowed_list:	0
+	voluntary_ctxt_switches:	1
+	nonvoluntary_ctxt_switches:	0
+
+Contenido fichero cmdline:
+	(vacio)
+
+El proceso hijo se encuentra en estado ZOMBIE esperando a que el padre ejecute un wait/waitpid
+para eliminar su PCB de las estructuras del kernel.
+
+24. cwd apunta al directorio donde se encuentra el binario del proceso, y exe apunta directamente
+a ese binario (ejecutable). El significado de cwd y exe es el mismo que el descrito en la pregunta
+anterior (Current Working Directory y Executable). La principal diferencia respecto la versión 
+anterior es que en este caso el proceso hijo no ha terminado, ya que en ningun momento muta y 
+se queda en un while(1) igual que el padre. Por este motivo, los ficheros cwd y exe SÍ que apuntan
+a algo.
+
+25.
+Contenido fichero environ:
+	USER=ismaelXDG_SEAT=seat0XDG_SESSION_TYPE=x11SSH_AGENT_PID=2420HOME=/home/ismaelDESKTOP_SESSION=bspwmGTK_MODULES=gail:atk-bridgeDBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/busNIX_PATH=nixpkgs=/nix/var/nix/profiles/per-user/ismael/channels/nixpkgs:/nix/var/nix/profiles/per-user/ismael/channelsNIX_REMOTE=daemonLOGNAME=ismaelGTK_IM_MODULE=ibusXDG_SESSION_CLASS=userUSERNAME=ismaelXDG_SESSION_ID=4WINDOWPATH=2PATH=/home/ismael/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/binGDM_LANG=en_US.UTF-8XDG_RUNTIME_DIR=/run/user/1000DISPLAY=:1LANG=en_US.UTF-8XDG_SESSION_DESKTOP=bspwmXAUTHORITY=/run/user/1000/gdm/XauthorityXMODIFIERS=@im=ibusSSH_AUTH_SOCK=/tmp/ssh-MWWZv9SUVjAb/agent.2362SHELL=/usr/bin/zshGDMSESSION=bspwmQT_ACCESSIBILITY=1GPG_AGENT_INFO=/run/user/1000/gnupg/S.gpg-agent:0:1XDG_VTNR=2QT_IM_MODULE=ibusPWD=/home/ismael/Documents/FIB/segon/SO/S3/pracXDG_DATA_DIRS=/usr/local/share/:/usr/share/:/var/lib/snapd/desktopCLUTTER_IM_MODULE=ibusSHLVL=1OLDPWD=/home/ismael/Documents/FIB/segon/SO/S3_=/home/ismael/Documents/FIB/segon/SO/S3/prac/./myPS_v0KITTY_WINDOW_ID=1WINDOWID=31457294TERM=xterm-kittyCOLORTERM=truecolorP9K_TTY=old_P9K_TTY=/dev/pts/1ZSH=/home/ismael/.oh-my-zshPAGER=lessLESS=-RLSCOLORS=GxfxcxdxbxegedabagacadLS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:P9K_SSH=0%  
+
+Contenido fichero status:
+	Name:	myPS_v0
+	Umask:	0022
+	State:	R (running)
+	Tgid:	4579
+	Ngid:	0
+	Pid:	4579
+	PPid:	4578
+	TracerPid:	0
+	Uid:	1000	1000	1000	1000
+	Gid:	1000	1000	1000	1000
+	FDSize:	64
+	Groups:	24 25 27 29 30 44 46 109 113 119 1000 
+	NStgid:	4579
+	NSpid:	4579
+	NSpgid:	4578
+	NSsid:	3310
+	VmPeak:	   2172 kB
+	VmSize:	   2172 kB
+	VmLck:	      0 kB
+	VmPin:	      0 kB
+	VmHWM:	     68 kB
+	VmRSS:	     68 kB
+	RssAnon:	     68 kB
+	RssFile:	      0 kB
+	RssShmem:	      0 kB
+	VmData:	     48 kB
+	VmStk:	    132 kB
+	VmExe:	      4 kB
+	VmLib:	   1460 kB
+	VmPTE:	     40 kB
+	VmSwap:	      0 kB
+	HugetlbPages:	      0 kB
+	CoreDumping:	0
+	THP_enabled:	1
+	Threads:	1
+	SigQ:	0/27252
+	SigPnd:	0000000000000000
+	ShdPnd:	0000000000000000
+	SigBlk:	0000000000000000
+	SigIgn:	0000000000000000
+	SigCgt:	0000000000000000
+	CapInh:	0000000000000000
+	CapPrm:	0000000000000000
+	CapEff:	0000000000000000
+	CapBnd:	000001ffffffffff
+	CapAmb:	0000000000000000
+	NoNewPrivs:	0
+	Seccomp:	0
+	Seccomp_filters:	0
+	Speculation_Store_Bypass:	thread vulnerable
+	Cpus_allowed:	ffff
+	Cpus_allowed_list:	0-15
+	Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+	Mems_allowed_list:	0
+	voluntary_ctxt_switches:	0
+	nonvoluntary_ctxt_switches:	573
+
+Contenido fichero cmdline:
+	./myPS_v0%
+
+En este caso, el proceso hijo se encuentra en estado RUNNING, a diferencia de la versión anterior,
+donde se encontraba en estado ZOMBIE despues de finalizar su ejecución. Esto es debido a que el
+proceso hijo no termina su ejecución en ningun momento, entra en un while(1) después de mostrar
+su mensaje, al igual que el padre.
+
+26. El proceso padre está en estado S (sleeping).
+
+27. Para guardar la salida en otro archivo he usado el símbolo de redireccionamiento ">",
+que almacena la salida del programa en el archivo de llegada. ./myPS3.c [arg1, ...] > salidan.
+
+
+
+
+
+
+
+
+
+
+
+
+

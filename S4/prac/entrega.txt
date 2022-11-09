@@ -1,0 +1,73 @@
+28. Cuando al padre le llega el evento SIGALRM termina, ya que 
+el tratamiento por defecto de SIGALRM es terminar el proceso.
+
+29. Si hacemos un execlp, la tabla de tratamiento de signals se
+pone por defecto ya que el proceso pasa a ejecutar otro programa,
+por lo que NO se mantiene la reprogramación de signals.
+
+30. El programa ejemplo_waitpid es concurrente.
+
+31. NO puede, ya que un proceso sólo puede enviar signals 
+a procesos creados por el mismo usuario y grupo.
+error: bash: kill: (7453) - Operation not permitted
+
+32. Cuando se envía por segunda vez el mismo signal, la shell
+muestra que el proceso ha terminado. Esto es debido a que poner
+la flag SA_RESETHAND al struct sigaction hace que cuando se recibe
+por primera vez el signal capturado se trata y se restaura el tratamiento
+por defecto. Y el tratamiento por defecto de SIGALRM es terminar.
+
+33. Si incluyo SIGINT en la "sa_mask" de la reprogramación de SIGUSR1,
+al ejecutar el código y enviarle SIGUSR1 al proceso, se observa:
+
+	inicio tratamiento
+	fin tratamiento
+
+Sin embargo, sin incluirlo se observa únicamente:
+
+	inicio tratamiento 
+
+Esto es debido a que si se incluye SIGINT, SIGINT estará bloqueado durante
+el tratamiento de SIGUSR1 y el proceso terminará (por recibir SIGINT)
+después de mostrar ambos mensajes. Si no se incluye, se hará un tratamiento
+anidado y se finalizará el proceso justo al recibir SIGINT, antes de mostrar
+el mensaje "fin tratamiento".
+
+34. Si ejecuto signalPerdido con parámetro 0 se observa en la shell:
+
+	Padre manda signal SIGUSR1
+	Hijo: SIGUSR1 recibido 
+	Hijo entrando al pause
+
+En cambio, si lo ejecuto con parámetro 1, se observa:
+	
+	Hijo entrando al pause
+	Padre: voy a mandar SIGUSR1 
+	Padre manda signal SIGUSR1
+	Hijo: SIGUSR1 recibido 
+	Hijo sale del pause
+	Padre sale del waitpid
+
+El motivo de esta diferencia es que si antes de realizar la espera 
+bloqueante no me encargo de bloquear provisionalmente la recepción
+de los signals que me pueden sacar de ella, si el padre me envia el 
+signal de forma immediata (y como ambos procesos se ejecutan concurrentemente)
+podria recibir el signal que me saca de de la espera bloqueante antes
+de la espera, por lo que al llegar a la espera me quedaria bloqueado 
+indefinidamemnte hasta recibir otro signal de los que me pueden sacar.
+Esto explicado justifica que en la ejecución con parámetro 0 el proceso
+no termina y se queda a la espera de volver a recibir SIGUSR1 (ya que lo 
+recibe antes de la espera).
+En cambio, si el padre se retarda un tiempo a enviar SIGUSR1 al hijo, el hijo lo
+recibirá (si el retardo es suficiente) cuando YA se encuentre en el sigsuspend,
+por lo que podrá salir de la espera bloqueante.
+
+
+
+
+
+
+
+
+
+

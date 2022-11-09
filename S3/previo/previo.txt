@@ -1,0 +1,194 @@
+EJEMPLO_FORK1:
+
+Output:
+	Soy el proceso 5721
+	Soy el proceso 5722
+
+Se pueden observar dos mensajes, uno realizado por el proceso padre y el otro por el hijo.
+El primer mensaje corresponde al padre, ya que al existir previamente al hijo, éste tiene un
+PID menor. El hijo tiene el PID del padre + 1. En este caso se muestra primero el mensaje del
+proceso padre, pero como sabemos que los procesos padre-hijo se ejecutan de forma concurrente
+esto podria haber sido en orden inverso. Ambos procesos pueden mostrar su identificador gracias
+a la llamada a sistema "getpid" que devuelve el PID del proceso que hace la llamada. Cabe destacar
+que en este ejemplo los dos procesos ejecutan el mismo codigo.
+
+EJEMPLO_FORK2:
+
+Output:
+	Antes del fork: Soy el proceso 5984
+	PADRE: Soy el proceso 5984
+	Los DOS: Soy el proceso 5984
+	HIJO: Soy el proceso 5985
+	Los DOS: Soy el proceso 5985
+
+En este caso, los dos procesos que se estan ejecutando de forma concurrente (padre-hijo) ejecutan
+fragmentos de código distintos, pese a que hay partes que ejecutan ambos. El primer mensaje 
+lo ejecuta el proceso padre, ya que se hace antes de la llamada "fork", es decir, antes de la 
+creación del proceso hijo. Los dos siguientes mensajes tambien són del padre, ya que se puede 
+observar en el PID debido a que es el menor de los dos. Finalmente los dos últimos mensajes són 
+del proceso hijo, por lo mismo argumentado antes. Si nos fijamos en el código del programa, al 
+hacer la llamada a sistema "fork" almacenamos el valor de retorno en la variable pid, ya que éste 
+nos permitirá diferenciar al proceso padre del hijo (retorna pid del hijo al padre y 0 al hijo).
+Posteriormente se hace un condicional por casos donde:
+	- si pid vale 0 --> Se trata del proceso hijo por lo que se mostrará un mensaje concreto
+	- si pid vale -1 --> No se ha podido crear el proceso hijo (error en el fork)
+	- en cualquier otro caso --> Se trata del padre por lo que se mostrará otro mensaje determinado
+
+Finalmente, se ejecuta un mensaje fuera del condicional que mostrarán AMBOS. 
+Como ya se ha mencionado en el ejemplo 1, al ejecutarse de forma concurrente, no hay un orden 
+predefinido de ejecucion del padre y del hijo (lo decide el SO), por lo que el orden en el que
+aparecen los mensajes NO significa que el hijo haya de esperar al padre para ejecutar lo que le 
+corresponde. El único mensaje que aparece en orden previsible es el que se hace antes del fork.
+
+EJEMPLO_FORK3
+
+Output:
+	Antes del fork: Soy el proceso 6928
+	PADRE: Soy el proceso 6928
+	Solo lo ejecuta el padre: Soy el proceso 6928
+	HIJO: Soy el proceso 6929
+
+Este ejemplo es muy parecido al anterior, por ende el primer mensaje es del padre ya que se ejecuta
+antes de la llamada "fork". Luego, igual que antes, después de la llamada fork se entra en un 
+condicional por casos, donde la única diferencia está en que si se trata del proceso hijo (pid == 0), 
+después de mostrar su mensaje concreto se hace la llamada "exit". Por este motivo, el mensaje fuera
+del condicional que antes ejecutaban ambos procesos, solo lo ejecutaria el padre ya que la llamada
+exit cuando sabemos que se trata del proceso hijo causa la finalización de su ejecución, así como
+la liberación de sus recursos y de las estructuras del kernel reservadas para él. En resumen, los 
+tres primeros mensajes son del padre y el último es del hijo, el cual finaliza su ejecución 
+voluntariamente después de mostrar su primer mensaje.
+
+EJEMPLO_FORK4
+
+Output:
+	Antes del fork: Soy el proceso 7088
+	PADRE: Soy el proceso 7088
+	Solo lo ejecuta el padre: Soy el proceso 7088
+	HIJO: Soy el proceso 7089
+	HIJO acaba: Soy el proceso 7089
+
+Los primeros tres mensajes son del proceso padre, mientras que los dos últimos son del proceso
+hijo. Pese a que sabemos que ambos procesos se ejecutan de forma concurrente, como que el proceso
+hijo hace un bucle vacío solo para perder tiempo, es previsible que el proceso padre termina antes
+su ejecución. Para que el padre no escriba el último mensaje de su código hasta que su hijo haya 
+acabado la ejecución bastará con hacer la llamada a sistema "waitpid(-1, NULL, 0)" antes del 
+último mensaje, cosa que hará que el proceso padre espere, con bloqueo si es necesario, a que
+el hijo termine su ejecución para seguir y acabar mostrando ese último mensaje. Para poder usar
+"waitpid" se debe incluir las libreria <sys/wait.h>, en base a la información que nos da man.
+
+EJEMPLO_FORK5
+
+Output:
+	Antes del fork: Soy el proceso 3765
+	PADRE: Soy el proceso 3765
+	HIJO: Soy el proceso 3766
+	HIJO:La variable_global vale A y la local a
+	PADRE:La variable_global vale A y la local a
+	Solo lo ejecuta el padre: Soy el proceso 3765
+
+El primer mensaje lo muestra el proceso padre, ya que se ejecuta antes de la creación del proceso
+hijo (llamada fork). Los dos siguientes mensajes son, en este orden, del padre y del hijo, ya
+que al ejecutarse de forma concurrente cada uno entra a su condición de la sentencia switch 
+correspondiente. El cuarto mensaje es del proceso hijo y el quinto del padre, y finalmente el
+último es del padre. El padre muestra sus dos últimos mensaje después de que finalize su proceso 
+hijo, ya que en su correspondiente condición del switch, después de mostrar el mensaje 
+"PADRE: Soy el ..." se hace la llamada "waitpid(-1,NULL,0)", cosa que le hará esperar a la 
+finalización del hijo, con bloqueo si es necesario, para continuar con su ejecución. Al modificar
+el codigo para que el hijo cambie el valor de variable_global y variable_local antes de imprimir 
+su valor, después de reejecutar el programa se ve como el padre sigue viendo el mismo valor que 
+tenian las variables antes de la llamada fork. Esto es debido a que pese a que el hijo hereda
+todo el espacio de direcciones lógico del padre, lo hace en memoria física nueva, por lo que
+posibles modificaciones no afectan al proceso padre.
+
+EJEMPLO_FORK6
+
+En el fichero de salida se puede observar que:
+	- El primer mensaje es el que hace el proceso padre antes de la creación del hijo.
+	- A continuación tanto el padre como el hijo, y de forma concurrente, entran en un bucle
+	de 100000 iteraciones donde cada 10000 iteraciones se modifica el valor de la variable global
+	(incluida la iteracion 0), y en cada iteracion del bucle se muestra su valor, junto a información
+	que nos permite saber qué proceso está escribiendo el mensaje. Una vez termina su bucle, el 
+	proceso hijo termina su ejecución voluntariamente mediante la llamada exit. En cambio, cuando
+	el proceso padre termina, al salir del condicional, muestra un mensaje final que solo ejecuta
+	él. Cabe destacar que el proceso hijo muestra letras mayusculas, ya que hereda el valor de las
+	variables en el momento en que su padre lo crea, y el padre muestra letras minúsculas, ya que 
+	antes de empezar el bucle se modifica el valor de la variable global a 'a'. Esto es posible sin
+	que ambos procesos se solapen ya que en el momento de la creación el hijo hereda el espacio
+	de direcciones lógico de su padre pero usa memoria física distinta.
+
+En resumen, en la salida se observan 200004 líneas, 1 correspondiente al mensaje inicial del
+padre, otra a su mensaje final, otras dos a los mensajes de identificación de ambos procesos
+antes del inicio del bucle y finalmente los 200000 mensajes de ambos bucles.
+
+En cuanto a la pregunta de si podemos asegurar que si ejecutamos varias veces este programa 
+el contenido del fichero salida será exactamente el mismo la respuesta es NO. Primeramente,
+el PID que mostrarian los dos procesos al identificarse es muy probable que serian distintos,
+ya que en nuestro SO se crean y finalizan procesos constantemente. Además como sabemos que
+ambos procesos se ejecutan de forma concurrente, el orden en que se muestran los mensajes de
+cada uno NO es previsible, de forma que podria cambiar de una ejecución a otra.
+
+EJEMPLO_FORK7
+
+El programa ejemplo_fork7 no compila porque se intenta acceder a una variable local de la 
+rutina main desde una subrutina auxiliar que no tiene acceso a esa variable ya que no
+está en su entorno de visibilidad. Por este motivo gcc nos muestra el mensaje "error: 
+‘variable_local’ undeclared". Esto no tiene nada que ver con el hecho de crear procesos 
+y se podria solucionar pasandole por parámetro el valor de variable_local a la subrutina 
+Escribe_variables().
+
+EJEMPLO_EXEC1
+La salida al ejecutar este programa es un mensaje de identificación que hace el proceso que 
+se está ejecutando y a continuación lo que se mostraria tras ejecutar el comando ls -l.
+Esto es debido a que el proceso, después de mostrar un mensaje de identificación, imprimiendo su
+PID gracias a la llamada getpid(), muta a otro binario correspondiente al programa ls, pasandole 
+el argumento -l. Éste es el motivo por el cual el mensaje con el PID del proceso sólo aparece 
+una vez, porque el que va después de la llamada execlp NO se ejecuta debido a que el proceso esta 
+cambiando de ejecutable y cambia su espacio de direcciones por completo, además de que se 
+reinicia el program counter a la primera instrucción del nuevo programa.
+
+EJEMPLO_EXEC2
+
+Output:
+	Soy el proceso: 6011
+	Soy el proceso 6011
+	Soy el proceso 6012
+
+Lo que pasa en este programa es que inicialmente el proceso muestra su PID y luego muta a otro 
+binario correspondiente al ejemplo_fork1 de este trabajo previo. Cabe destacar que el proceso, 
+aunque mute, mantiene su mismo PID, continua siendo el mismo. Una vez empieza a ejecutar ese otro
+programa hace un fork y crea un proceso hijo. Ambos procesos acabaran imprimiendo su identificación
+por la salida estándard. Por lo tanto, antes de la mutación solo hay un proceso, y después de la 
+mutación, al hacer la llamada fork, hay dos.
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+

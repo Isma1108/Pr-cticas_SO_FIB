@@ -1,0 +1,157 @@
+35. En la salida del nm de mem1_dynamic aparece la variable global globalArray:
+	
+	0000000000004080 B globalArray
+	
+	Como se puede ver, ocupa la dirección 0x0000000000004080 y pertenece a la sección de datos,
+	concretamente a la sección .bss, al tratarse de una variable global sin inicializar.
+	(las variables locales no aparecen usando el comando nm)
+
+36. Tanto para la salida de nm como de objdump, se ve como la del ejecutable mem1_static es
+muchísimo mas larga. Esto es debido a que al compilar con la flag -static se impede el 
+enlaze con las librerías compartidas, de forma que se carga una copia de las librerias
+usadas en el mismo ejecutable. E aquí el motivo de la diferencia abismal de tamaños.
+De hecho, el tamaño de mem1_dynamic es de 16896 bytes, mientras que el de mem1_static
+es de 818328 bytes. Esto lleva a la conclusión de que se ahorra mucho espacio en disco 
+haciendo que los binarios no contengan el código de las librerias dinámicas, sino un enlaze.
+
+37. En base al fihcero maps del /proc de los procesos que corresponden a los ejecutables: 
+
+En el caso de mem1_dynamic:
+	56288efbf000-56288efc0000 r--p 00000000 103:08 6173367                   /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_dynamic
+	56288efc0000-56288efc1000 r-xp 00001000 103:08 6173367                   /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_dynamic
+	56288efc1000-56288efc2000 r--p 00002000 103:08 6173367                   /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_dynamic
+	56288efc2000-56288efc3000 r--p 00002000 103:08 6173367                   /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_dynamic
+	56288efc3000-56288efc4000 rw-p 00003000 103:08 6173367                   /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_dynamic
+	56288efc4000-56288efc5000 rw-p 00000000 00:00 0 
+	562890c3c000-562890c5d000 rw-p 00000000 00:00 0                          [heap]
+	7ff19d785000-7ff19d7a7000 r--p 00000000 103:08 7739529                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+	7ff19d7a7000-7ff19d901000 r-xp 00022000 103:08 7739529                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+	7ff19d901000-7ff19d950000 r--p 0017c000 103:08 7739529                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+	7ff19d950000-7ff19d954000 r--p 001ca000 103:08 7739529                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+	7ff19d954000-7ff19d956000 rw-p 001ce000 103:08 7739529                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+	7ff19d956000-7ff19d95c000 rw-p 00000000 00:00 0 
+	7ff19d988000-7ff19d989000 r--p 00000000 103:08 7739525                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+	7ff19d989000-7ff19d9a9000 r-xp 00001000 103:08 7739525                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+	7ff19d9a9000-7ff19d9b1000 r--p 00021000 103:08 7739525                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+	7ff19d9b2000-7ff19d9b3000 r--p 00029000 103:08 7739525                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+	7ff19d9b3000-7ff19d9b4000 rw-p 0002a000 103:08 7739525                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+	7ff19d9b4000-7ff19d9b5000 rw-p 00000000 00:00 0 
+	7fff6aef1000-7fff6af12000 rw-p 00000000 00:00 0                          [stack]
+	7fff6afb6000-7fff6afba000 r--p 00000000 00:00 0                          [vvar]
+	7fff6afba000-7fff6afbc000 r-xp 00000000 00:00 0                          [vdso]
+	
+En el caso de mem1_dynamic:
+	00400000-00401000 r--p 00000000 103:08 6170564                           /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_static
+	00401000-00489000 r-xp 00001000 103:08 6170564                           /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_static
+	00489000-004b0000 r--p 00089000 103:08 6170564                           /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_static
+	004b1000-004b4000 r--p 000b0000 103:08 6170564                           /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_static
+	004b4000-004b7000 rw-p 000b3000 103:08 6170564                           /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_static
+	004b7000-004b9000 rw-p 00000000 00:00 0 
+	00c7b000-00c9d000 rw-p 00000000 00:00 0                                  [heap]
+	7fff84921000-7fff84942000 rw-p 00000000 00:00 0                          [stack]
+	7fff849b7000-7fff849bb000 r--p 00000000 00:00 0                          [vvar]
+	7fff849bb000-7fff849bd000 r-xp 00000000 00:00 0                          [vdso]
+		
+Se observa claramente que en el maps del proceso correspondiente a mem1_static la salida es
+menor, ya que el maps de mem1_dynamic se incluyen los enlaces a las librerias compartidas. 
+
+38. La variable globalArray, que se trata de la única variable global del programa, se encuentra
+en la sección de codigo referenciada con el nombre del ejecutable en el fihcero maps,
+con derechos de read y write (rw). Por otro lado, las zonas reservadas con malloc pertenecen
+a la sección heap:
+Para mem1_dynamic: 
+	El heap va de 0x562890c3c000 a 562890c5d000,
+	Esto tine sentido, ya que las regiones pedidas con malloc caen dentro de ese intervalo:
+		Region 0: 0x562890c3c2a0 - 0x562890c3d2b0
+		Region 1: 0x562890c3d2b0 - 0x562890c3e2c0
+		Region 2: 0x562890c3e2c0 - 0x562890c3e2d0
+
+Para mem1_static: (igual)
+	El heap va de 0x004b7000 - 004b9000
+	Las regiones:
+		Region 0: 0xc7c610 - 0xc7d620
+		Region 1: 0xc7d620 - 0xc7e630
+		Region 2: 0xc7e630 - 0xc7f630
+
+Las direcciones de inicio y final de las regiones tienen sentido, ya que se reservan 4096
+bytes para cada región, por lo que al cambio de regiones debe cambiar el cuarto dígito 
+hexadecimal.
+
+39. 
+Para parámetro 3:
+	Numero de mallocs hechos: 3.
+	Heap: 0x563aeb1d8000 - 0x563aeb1f9000 --> 135,168 bytes de tamaño
+
+Para parámetro 5:
+	Numero de mallocs hechos: 5.
+	Heap 0x55a6290b0000 - 0x55a6290d1000 --> 135,168 bytes de tamaño
+
+Para parámetro 100:
+	Numero de mallocs hechos: 100.
+	Heap: 0x55a81fa75000 - 0x55a81faf9000 --> 540,672 bytes de tamaño
+
+Tanto para parámetro 3 como para 5, donde se pide 3 y 5 veces una región libre de
+4096 bytes, el tamaño del heap no cambia, lo que nos lleva a deducir que malloc detecta
+que no hace falta aumentar el tamaño del heap porque hay suficientes posiciones consecutivas
+libres para ofrecer. En cambio, cuando se pretenden crear 100 regiones de 4096 bytes, usando
+el parámetro 100, malloc detecta (en alguna iteracion iésima) que necesita aumentar el heap
+para poder satisfacer la petición de memória dinámica, por lo que aumenta (posiblemente
+mucho más de lo necesario, para no tener que volver a aumentar el heap muy seguidamente) el
+tamaño del heap.
+
+40. En este caso, el tamaño del heap:
+
+	Heap: 0x559e523f2000 - 0x559e52413000 --> 135,168 bytes de tamaño
+
+En este caso, se ve que el tamaño del heap es de 135,168 bytes en vez de 540,672, ya que 
+como que en cada iteración se "libera" la memoria dinámica pedida, en la siguiente petición 
+malloc puede usar esa región.
+
+41. 
+Para parámetro 3:
+	Numero de sbrk hechos: 3.
+	Heap: 0x55ece5d8a000 - 0x55ece5d8d000 --> 12,288 bytes de tamaño
+
+Para parámetro 5:
+	Numero de sbrk hechos: 5
+	Heap 0x561167f82000 - 0x561167f87000 --> 20,480 bytes de tamaño
+
+Para parámetro 100:
+	Numero de sbrk hechos: 100.
+	Heap: 0x556a2cd47000 - 0x556a2cdab000 --> 409,600 bytes de tamaño
+
+En este caso se ve como SI que cambia el tamaño del heap respecto al observado en la 
+pregunta 6. Esto es debido a que la llamada a sistema sbrk aumenta/disminuye el tamaño
+del heap siempre. A diferencia de malloc (funcón de libC), que puede aumentar el heap mas
+de lo pedido para no tener que aumentarlo de forma muy seguida, sbrk solo lo aumenta lo pedido.
+Por lo tanto, en el ejercicio 6, tanto para 3 como para 5 regiones el aumento previo de malloc
+(superior a lo necesario) es suficiente para ofrecer la memoria dinamica pedida, y cuando se 
+pidem 100 regiones, se ve obligado a aumemtar (probablemente mas de lo necesario) el tamaño
+del heap. En cambio, usando sbrk se va aumentando el heap cada vez que se llama.
+
+42. 
+El problema que contiene el código del programa es que mediante malloc sabemos que se incrementa
+(o no) en cierta cantidad el heap, y se va avanzando con un puntero hasta que se sale de la sección
+heap, por lo que la dirección a la que se hace referencia es inválida. En las primeras iteraciones
+NO falla precisamente porque aun nos encontramos dentro del heap (ya que malloc reserva mas de lo
+necesario). Para poder evitar que se genere la excepción, una posible solución seria comparar el puntero
+con el límite del heap, usando sbrk(0), ya que nos devuelve el límite anterior del heap y no lo 
+incrementa. De esta forma, cuando vemos que el puntero supera el límite del heap salimos del bucle.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

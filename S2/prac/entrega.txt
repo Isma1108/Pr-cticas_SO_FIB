@@ -1,0 +1,7 @@
+17. 
+He tenido que añadir la opción -c al gcc para generar el fichero objeto. 
+Para que el compilador encuentre el fichero mis_funciones.h no he tenido que 
+añadir ninguna opción al gcc, ya que el fichero se encontraba en el mismo
+directorio donde se ejecutaba el comando. En caso de no ser asi, se deberia
+añadir la opción -I path, donde path indicaria el directorio del fichero.
+
