@@ -40,7 +40,7 @@ En el caso de mem1_dynamic:
 	7fff6afb6000-7fff6afba000 r--p 00000000 00:00 0                          [vvar]
 	7fff6afba000-7fff6afbc000 r-xp 00000000 00:00 0                          [vdso]
 	
-En el caso de mem1_dynamic:
+En el caso de mem1_static:
 	00400000-00401000 r--p 00000000 103:08 6170564                           /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_static
 	00401000-00489000 r-xp 00001000 103:08 6170564                           /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_static
 	00489000-004b0000 r--p 00089000 103:08 6170564                           /home/ismael/Documents/FIB/segon/SO/S5/prac/mem1_static
@@ -53,7 +53,7 @@ En el caso de mem1_dynamic:
 	7fff849bb000-7fff849bd000 r-xp 00000000 00:00 0                          [vdso]
 		
 Se observa claramente que en el maps del proceso correspondiente a mem1_static la salida es
-menor, ya que el maps de mem1_dynamic se incluyen los enlaces a las librerias compartidas. 
+menor, ya que en el maps de mem1_dynamic se incluyen los enlaces a las librerias compartidas. 
 
 38. La variable globalArray, que se trata de la única variable global del programa, se encuentra
 en la sección de codigo referenciada con el nombre del ejecutable en el fihcero maps,
