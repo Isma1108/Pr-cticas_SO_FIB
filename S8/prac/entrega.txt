@@ -1,0 +1,17 @@
+67. El fichero de salida contiene:
+	Inicio 
+	Fin
+Contiene tanto la salida del padre como la del hijo, ya que el hijo hereda la tabla de canales 
+y por ende el mismo canal de salida estandar (1). Ambos escribiran en él.
+
+68. El programa padre no termina y el hijo tampoco. Esto es debido a que el padre se encuentra
+en espera bloqueante a que muera el hijo y el hijo en espera bloqueante a leer un dato de la 
+pipe ya que existe un possible escritor (el padre) y no se provoca un EOF para que devuelva 0.
+
+69. Si quisiéramos que el lector también pudiera enviar un mensaje al escritor SI que podríamos 
+utilizar la misma pipe con nombre haciendo que tanto el lector como el escritor tengan acceso
+en modo O_RDWR, indicandolo al hacer open. Pero habria un gran problema, deberiamos establecer 
+un protocolo de escritura-lectura de los procesos que acceden a la pipe con nombre, ya que si no 
+seria un caos saber si un proceso lee lo que él ha escrito o no. Por este motivo las cosas se 
+podrian volver mas fáciles si se creara otra pipe con nombre.
+

@@ -1,0 +1,1 @@
+cmd_/home/ismael/Documents/FIB/segon/SO/sesions/S7/prac/deviceDrivers/Module.symvers := sed 's/ko$$/o/' /home/ismael/Documents/FIB/segon/SO/sesions/S7/prac/deviceDrivers/modules.order | scripts/mod/modpost -m    -o /home/ismael/Documents/FIB/segon/SO/sesions/S7/prac/deviceDrivers/Module.symvers -e -i Module.symvers   -T -

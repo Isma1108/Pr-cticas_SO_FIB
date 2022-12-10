@@ -1,0 +1,1 @@
+cmd_/home/ismael/Documents/FIB/segon/SO/sesions/S7/prac/deviceDrivers/myDriver2.mod := { echo  /home/ismael/Documents/FIB/segon/SO/sesions/S7/prac/deviceDrivers/myDriver2.o;  echo; } > /home/ismael/Documents/FIB/segon/SO/sesions/S7/prac/deviceDrivers/myDriver2.mod

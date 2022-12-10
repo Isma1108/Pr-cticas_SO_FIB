@@ -1,0 +1,20 @@
+43. La máquina en la que trabajo tiene un procesador con 4 cores y 2 threads por core, és decir
+un total de 8 CPU's, entendiendo como CPU la unidad mínima de cómputo. Tanto el fichero 
+/proc/cpuinfo como el comando lstopo me dan la misma información.
+
+48. El sistema ha ido repartiendo %CPU entre los distintos procesos en todos los casos, 
+siguiendo la política CFS que tiene en cuenta principalmente el número de threads que usa el 
+proceso y el tiempo que lleva usando CPU, entre otras cosas.
+
+49. La asignación ha sido por jerarquia de procesos.
+
+50, 51. Cuando solo lanzamos una instancia de BAJA_PRIO_FIB, como que el sistema no esta saturado
+ya que hay threads suficientes para poderle ofrecer un 100% de CPU a ambas instancias, mas o 
+menos las dos ejecuciones tardan el mismo tiempo. en cambio, cuando lanzamos 10 (NTHREADS+2)
+de BAJA_PRIO_FIB se le da un 100% de CPU a la instancia FIB, ya que tiene mas prioridad, y lo
+restante se otorga a las instancias restantes de BAJA_PRIO_FIB repartiendo en base a la política
+de planificación del scheduler. Es este el motivo por el cual en este último caso la ejecución
+media de BAJA_PRIO_FIB tarda mas.
+
+52. El sistema tiene en total 7284101120 bytes de memoria física.
+

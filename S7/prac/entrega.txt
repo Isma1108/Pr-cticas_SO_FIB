@@ -1,0 +1,131 @@
+55. 
+
+Apartado 1 -> ps
+Apartado 2 -> ./es1 > /dev/pts/0
+Apartado 3 -> ./es1 | ./es1
+Apartado 5 -> strace –o salida_v2 –e read ./es1_v2 < es2.c
+							strace –o salida_v1 –e read ./es1 < es2.c
+
+En las dos ejecuciones de strace observo como el numero de llamadas a sistema read en el caso
+de es1 (que lee y escribe carácteres de uno en uno) es considerablemente superior que en 
+es1_v2. (1702 llamadas de es1 vs 8 de es1_v2). Se deduce que la versión es1_v2 que lee y
+escribe usando un buffer es mucho mas eficiente ya que el numero de llamadas que hace es mucho
+menor.
+
+56. Cuando el primer parámetro vale 0, se observan números enteros, mientras que cuando 
+el parámetro vale 1 se observan carácteres ASCII no previsibles. Es evidente que si el 
+parámetro vale 0 se escriben los numeros en formato ASCII, mientras que si vale 1 se escriben
+en formato int, y como la shell interpreta su entrada como ASCII la traducción no es previsible.
+
+57. Si la entrada es la salida de es2 con el primer parámetro a 1, el resultado es el ascii
+correspondiente a los enteros de la salida, por lo que se observa la representacion en
+ASCII de los numeros (que en la salida de es2 se veian como carácteres ascii no previsibles).
+Por otro lado, si la entrada es la salida de es2 con el primer parámetro a 0, el resultado
+es extraño, ya que lo que se muestra es el ASCII correspondiente al numero que representa
+el ASCII de los numeros generados en es2.
+
+58. En el caso de es4 si el parámetro de es2 valia 0, se va a mostrar el mismo numero 
+representado en ascii, ya que es4 recibe un ascii de su entrada std y escribe tal cual
+por la salida std en ascii también. Por otro lado, si el parámetro de es2 valia 1, se va a
+mostrar lo mismo que en la salida de es2, el ascii de directamemte los enteros
+(el ascii no previsible).
+
+59.
+
+	CMD                         %CPU     TIME
+	./es1                        0.0 00:00:00
+	./es5                       69.5 00:00:01
+	./es1                        0.0 00:00:00
+	./es5                       85.5 00:00:03
+	./es1                        0.0 00:00:00
+	./es5                       90.8 00:00:05
+	./es1                        0.0 00:00:00
+	./es5                       93.5 00:00:07
+	./es1                        0.0 00:00:00
+	./es5                       95.1 00:00:09
+	./es1                        0.0 00:00:00
+	./es5                       96.0 00:00:11
+
+Se ve como es1 no consume CPU mientras que es5 sí. Esto es debido a que el programa es1 
+realiza una espera bloqueante a la espera de recibir algo del canal 0 de entrada std
+(read(0, &c, sizeof(c));), mientras que es5 realiza una espera activa por tratarse de un 
+while loop infinito.
+
+60. 
+Ejecución con return --> read correcto
+Ejecución con ^C --> Se ha recibido un SIGINT
+										 read interrumpido por signal
+
+61. Si usaramos el flag SA_RESTART en el sigaction, al recibir SIGINT el programa no 
+abortaria, seguiria en espera bloqueante.
+
+Ejecución con return --> read correcto
+Ejecución con ^C --> Se ha recibido un SIGINT
+
+62. Los majors de tanto myDriver1 como myDriver2 ya estan en uso en mi SO.
+Concretamente estan usados por los drivers:
+	249 --> cec
+	250 --> hidraw
+Por este motivo para cargar los modulos de los nuevos drivers se pueden cambiar sus majors o
+simplemente descargar del kernel los DD con majors 249 y 250.
+
+63.
+Module                  Size  Used by
+myDriver2              16384  0
+myDriver1              16384  0
+
+64. (en mi caso myDriver1 -> major 270 y myDriver2 -> major 271)
+Para crear el dispositivo he usado la línea de comandos: sudo mknod myDevice c 270 
+
+65.
+................................................
+Este programa escribe por la salida std todo lo que lee de la entrada std. Si no has redirigido la salida, lo que escribas en el teclado saldra por la pantalla
+Para acabar CtrlD
+................................................
+Driver 1 read operation
+Sponsored by Laboratorios Gelocatas SL
+fin ejecución
+
+El Device Driver asociado al dispositivo myDevice tiene una operación de lectura muy sencilla
+donde siempre se va a leer el texto:
+	Driver 1 read operation
+	Sponsored by Laboratorios Gelocatas SL
+
+El programa es1 escribe por la salida estandar lo que recibe por su entrada, que en este caso
+es una lectura de myDevice. Es evidente que la salida es la mostrada antes.
+
+66.
+................................................
+Este programa escribe por la salida std todo lo que lee de la entrada std. Si no has redirigido la salida, lo que escribas en el teclado saldra por la pantalla
+Para acabar CtrlD
+................................................
+DRIVER 2 READ OPERATION
+SPONSORED BY LABORATORIOS GELOCATAS SL
+fin ejecución
+
+Las diferencias se deben a que la operación de lectura del Driver 2 es distinta a la del
+Driver 1, lo muestra todo en mayúsculas.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

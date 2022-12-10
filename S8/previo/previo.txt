@@ -1,0 +1,47 @@
+1.
+Para crear la pipe con nombre he usado:
+	#mknod myPipe p
+
+Para que una shell lea de la pipe y otra escriba ...
+	#cat > myPipe (en la shell /pts/0)
+	#cat < myPipe (en la shell /pts/1)
+
+2.
+NO es posible comunicar los dos comandos ‘cat’ desde dos terminales diferentes a través
+de una pipe sin nombre, ya que en ese caso la pipe solo podria ser usada por el proceso que 
+la crea y cualquier descendiente (directo o indirecto) de este, ya que heredarian los canales.
+Esto es debido a que la pipe sin nombre no usa ningun nombre del VFS (Virtual File System) y
+por ende no ejecuta ninguna llamada a sistema open. Desde el mismo terminal si que se podria
+hacer ya que ambos procesos son creados por un mismo proceso (el de la shell) y heredan 
+los canales.
+
+3.
+	//Si 0 era un canal válido, que lo es, se cierra previamente i el canal 0 lo pasa a ocupar
+	una copia del canal 4.
+	#dup2(4, 0);
+
+	//solo falta cerrar el canal 4, que ya esta copiado en el 0 ...
+	#close(4);
+
+4.
+createSocket:
+	- Primero crea un addr para el socket y copia en él el string socketId.
+	- Luego crea un socket mediante la llamada a sistema socket, donde se indica AF_UNIX como 
+		dominio para comunicación local y SOCK_STREAM para que el tipo de conexion sea secuencial, 
+		bidireccional y a nivel de byte, guardando el file descriptor en la variable socket_fd.
+	- Si el descriptor es -1 (< 0) se devuelve ese valor, se trata de un error.
+	- Si no, se guarda en el entero ret el valor de retorno de bind, que le assigna una addr
+		al socket creado previamente con fd socket_fd. Si el valor de ret es negativo (-1), ha 
+		habido un error durante el enlaze, por lo que se cierra el canal ocupado por el socket
+		mediante close y se hace un return.
+	- Si todo va bien, solo falta usar la llamada a sistema listen para poner al socket en modo
+		pasivo, para poder usar posteriormente la llamada a sistema accept para aceptar requests
+		de conexión. Si listen devuelve -1 ha habido un error, se cierra el canal y se hace return.
+
+serverConnection:
+	- Devuelve el valor de retorno de la llamada a sistema accept, que acepta (o no) una conexion
+	a un socket. Se le pasa por parametro el descriptor del socket creado previamente y dos 
+	argumentos mas que son un puntero a la struct sockaddr la direccion de addrSize. Accept 
+	devuelve un fd para el socket aceptado, y -1 en caso de error.
+
+

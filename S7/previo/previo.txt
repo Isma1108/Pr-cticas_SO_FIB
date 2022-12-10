@@ -1,0 +1,66 @@
+1. La llamada read después de pulsar ^D devuelve 0, cosa que hace salir al programa del loop
+y muestra el mensaje "fin ejecución".
+
+2. He usado el comando ./es1 < fichero.txt 
+
+El resultado de ejecutar la pipeline #ls –l |grep es es:
+
+	-rwxr-xr-x 1 ismael ismael 16760 Nov 19 19:42 es1
+	-rw-r--r-- 1 ismael ismael  1170 Nov 19 19:43 es1.c
+	-rwxr-xr-x 1 ismael ismael 16936 Nov 19 19:42 es2
+	-rw-r--r-- 1 ismael ismael  1700 Feb  8  2021 es2.c
+	-rwxr-xr-x 1 ismael ismael 16760 Nov 19 19:42 es3
+	-rw-r--r-- 1 ismael ismael   943 Feb  8  2021 es3.c
+	-rwxr-xr-x 1 ismael ismael 16656 Nov 19 19:42 es4
+	-rw-r--r-- 1 ismael ismael  1206 Feb  8  2021 es4.c
+	-rwxr-xr-x 1 ismael ismael 16456 Nov 19 19:42 es5
+	-rw-r--r-- 1 ismael ismael    31 Feb  8  2021 es5.c
+	-rwxr-xr-x 1 ismael ismael 16656 Nov 19 19:42 es6
+	-rw-r--r-- 1 ismael ismael   112 Feb  8  2021 es6.c
+	-rwxr-xr-x 1 ismael ismael 16608 Nov 19 19:42 es7
+	-rw-r--r-- 1 ismael ismael   107 Feb  8  2021 es7.c
+	-rwxr-xr-x 1 ismael ismael 16712 Nov 19 19:42 es8
+	-rw-r--r-- 1 ismael ismael   644 Feb  8  2021 es8.c
+
+El comando grep busca patrones en un fichero o en su entrada estándar si no se le
+pasa un fichero como parámetro. En este caso, como que la pipe hace que la entrada estándar
+del comando grep sea la salida estándar de ls -l, grep devuelve un subconjunto de la salida 
+de ls -l donde se observa el patron "es".
+
+3. En mi caso uso zsh (Zshell), por lo que ejecutaré una pipeline que muestra en la salida
+estándar el PID, el usuario y el nombre de todos los procesos zsh que se estan ejecutando
+en el sistema. Para ello, he mirado el man de ps.
+
+El comando es: ps -eo pid,user,command | grep zsh
+
+Flag -e de ps --> To see every process on the system
+Flag -o de ps --> Output format control
+
+Ejecuta un pipeline que muestre en la salida estándar el PID, el usuario y el nombre de
+todos los procesos bash que se están ejecutando en el sistema. Para ello utiliza los
+comandos ps y grep combinados con una pipe.
+
+5. En el caso de la representación interna de la máquina se escriben 4 bytes, y en el caso 
+del entero en formato string 5 bytes (uno para cada dígito, que es un carácter). En la 
+escritura de la representación interna observo "B)", que se trata de la interpretación de 
+los bytes por parte de la consola (en ASCII, algunos no son visibles). Por otro lado, en la
+escritura en formato string, se observa "10562", ya que a la consola se le pasa el codigo 
+ASCII correcto asociado al entero 10562.
+
+6.
+a) Para Device1, el driver usa la función read_driver_1, y para Device2 el driver usa
+la función read_driver_2.
+
+b) El major y el minor son los identificadores del device driver. Se usan para asociar
+un dispositivo lógico con su codigo de acceso específico. En concreto, el major number 
+identifica el driver asociado con el device y el minor number solo es usado por el driver
+especificado por el major number, es decir, es una instancia concreta respecto al major.
+
+Device Driver 1:
+	MAJOR 249
+	MINOR 0
+
+Device Driver 2:
+	MAJOR 250
+	MINOR 0
+

@@ -1,0 +1,32 @@
+1. El numero de fallos de página del proceso se encuentra en el fichero /proc/[pid]/stat.
+Concretamente en los siguientes campos:
+
+minflt (10) --> The  number  of  minor faults the process has made which have not required 
+loading a memory page from disk.
+
+cminflt (11) --> The number of minor faults that the process's waited-for children have made.
+
+majflt (12) --> The number of major faults the process has made which have required loading 
+a memory page from disk.
+
+cmajflt (13) --> The number of major faults that the process's waited-for children have made.
+
+2. He usado vmstat -n 1. La salida del comando muestra cada segundo estadísticas de la 
+memoria virtual donde en el campo swap "si" (swap-in) representa la cantidad de memoria traída
+del disco, y "so" (swap-on) la enviada al disco.
+
+6. Usando time para medir el tiempo que tarda en ejecutarse Fibonacci se ve que con los 
+siguientes parámetros:
+	
+	10 --> 0:00.00 elapsed 
+	20 --> 0:00.00 elapsed
+	30 --> 0:00.02 elapsed
+	40 --> 0:01.31 elapsed
+	50 --> 1:53.71 elapsed
+
+7. Si a nice no le especificamos la cantidad de niceness a sumar, por defecto le suma 10 al
+proceso en ejecución, cosa que evidentemente hará que el proceso tenga menos prioridad a la 
+hora del scheduling. Mirando htop, se ve como Fibonacci se ejecuta con valor de nice 10. 
+
+
+
