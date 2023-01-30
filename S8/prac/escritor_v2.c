@@ -12,7 +12,7 @@ int main() {
 
   printf("Ya hay un lector!! :-)\n");
   char c;
-  while (read(0, &c, 1) > 0) {
+  while (read(0, &c, sizeof(char)) > 0) {
     write(fd, &c, 1);
   }
 }

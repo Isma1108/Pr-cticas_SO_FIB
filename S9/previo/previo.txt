@@ -1,0 +1,256 @@
+1. 
+¿Cómo podéis saber los sistemas de ficheros montados en vuestro sistema y de
+qué tipo son? Indica, además, en qué directorios están montados:
+
+El comando df és el que nos devuelve información sobre el sistema de ficheros.
+con la flag -T o --print-type podemos ver de que tipo son:
+
+#df -T
+Filesystem     Type     1K-blocks     Used Available Use% Mounted on
+udev           devtmpfs   3487504        0   3487504   0% /dev
+tmpfs          tmpfs       711340     1700    709640   1% /run
+/dev/nvme0n1p8 ext4     130539580 65995388  57866944  54% /
+tmpfs          tmpfs      3556684        0   3556684   0% /dev/shm
+tmpfs          tmpfs         5120        4      5116   1% /run/lock
+/dev/nvme0n1p1 vfat         98304    49878     48426  51% /boot/efi
+/dev/loop1     squashfs    119552   119552         0 100% /snap/core/14399
+/dev/loop3     squashfs       128      128         0 100% /snap/bare/5
+/dev/loop2     squashfs     59008    59008         0 100% /snap/alacritty/46
+/dev/loop4     squashfs    150528   150528         0 100% /snap/chromium/2254
+/dev/loop0     squashfs     83328    83328         0 100% /snap/gtk-common-themes/1534
+/dev/loop5     squashfs    150144   150144         0 100% /snap/chromium/2238
+/dev/loop6     squashfs    173568   173568         0 100% /snap/spotify/60
+/dev/loop7     squashfs    173696   173696         0 100% /snap/spotify/58
+/dev/loop8     squashfs     22912    22912         0 100% /snap/dm-tools/164
+/dev/loop9     squashfs    457088   457088         0 100% /snap/gnome-42-2204/44
+/dev/loop10    squashfs    354688   354688         0 100% /snap/gnome-3-38-2004/119
+/dev/loop11    squashfs     56448    56448         0 100% /snap/cups/836
+/dev/loop13    squashfs     83456    83456         0 100% /snap/discord/145
+/dev/loop12    squashfs     74624    74624         0 100% /snap/core22/444
+/dev/loop14    squashfs     56960    56960         0 100% /snap/core18/2632
+/dev/loop15    squashfs     83200    83200         0 100% /snap/discord/143
+/dev/loop16    squashfs    298368   298368         0 100% /snap/dbeaver-ce/215
+/dev/loop17    squashfs     56960    56960         0 100% /snap/core18/2654
+/dev/loop18    squashfs     74624    74624         0 100% /snap/core22/310
+/dev/loop20    squashfs    424320   424320         0 100% /snap/gnome-42-2204/29
+/dev/loop19    squashfs    354688   354688         0 100% /snap/gnome-3-38-2004/115
+/dev/loop21    squashfs     64768    64768         0 100% /snap/core20/1695
+/dev/loop22    squashfs     93952    93952         0 100% /snap/gtk-common-themes/1535
+/dev/loop23    squashfs    294016   294016         0 100% /snap/dbeaver-ce/214
+/dev/loop24    squashfs     64768    64768         0 100% /snap/core20/1738
+/dev/loop25    squashfs    168832   168832         0 100% /snap/gnome-3-28-1804/161
+/dev/loop26    squashfs      1024     1024         0 100% /snap/lsd/62
+/dev/loop27    squashfs     56448    56448         0 100% /snap/cups/872
+tmpfs          tmpfs       711336     3300    708036   1% /run/user/1000
+
+En la columna "Mounted on" se puede apreciar en qué directorios estan montados, 
+y en la columna "Type" el tipo.
+
+¿Cómo se puede saber el número de inodos libres de un sistema de ficheros?
+¿Qué comando has utilizado y con qué opciones?
+De nuevo el comando df, esta vez con la flag -i o --inodes, que nos lista la información
+de los inodos en vez del uso de bloque.
+
+#df -i
+Filesystem      Inodes  IUsed   IFree IUse% Mounted on
+udev            871876    588  871288    1% /dev
+tmpfs           889171   1159  888012    1% /run
+/dev/nvme0n1p8 8331264 914719 7416545   11% /
+tmpfs           889171      1  889170    1% /dev/shm
+tmpfs           889171      3  889168    1% /run/lock
+/dev/nvme0n1p1       0      0       0     - /boot/efi
+/dev/loop1       12857  12857       0  100% /snap/core/14399
+/dev/loop3          29     29       0  100% /snap/bare/5
+/dev/loop2        1089   1089       0  100% /snap/alacritty/46
+/dev/loop4        1005   1005       0  100% /snap/chromium/2254
+/dev/loop0       76177  76177       0  100% /snap/gtk-common-themes/1534
+/dev/loop5        1005   1005       0  100% /snap/chromium/2238
+/dev/loop6        1197   1197       0  100% /snap/spotify/60
+/dev/loop7        1197   1197       0  100% /snap/spotify/58
+/dev/loop8        2443   2443       0  100% /snap/dm-tools/164
+/dev/loop9       20187  20187       0  100% /snap/gnome-42-2204/44
+/dev/loop10      18272  18272       0  100% /snap/gnome-3-38-2004/119
+/dev/loop11       2587   2587       0  100% /snap/cups/836
+/dev/loop13        307    307       0  100% /snap/discord/145
+/dev/loop12      13335  13335       0  100% /snap/core22/444
+/dev/loop14      10873  10873       0  100% /snap/core18/2632
+/dev/loop15        307    307       0  100% /snap/discord/143
+/dev/loop16      20919  20919       0  100% /snap/dbeaver-ce/215
+/dev/loop17      10877  10877       0  100% /snap/core18/2654
+/dev/loop18      13283  13283       0  100% /snap/core22/310
+/dev/loop20      20203  20203       0  100% /snap/gnome-42-2204/29
+/dev/loop19      18121  18121       0  100% /snap/gnome-3-38-2004/115
+/dev/loop21      11897  11897       0  100% /snap/core20/1695
+/dev/loop22      76208  76208       0  100% /snap/gtk-common-themes/1535
+/dev/loop23      18927  18927       0  100% /snap/dbeaver-ce/214
+/dev/loop24      11897  11897       0  100% /snap/core20/1738
+/dev/loop25      27806  27806       0  100% /snap/gnome-3-28-1804/161
+/dev/loop26          7      7       0  100% /snap/lsd/62
+/dev/loop27       2529   2529       0  100% /snap/cups/872
+tmpfs           177834    296  177538    1% /run/user/1000
+
+¿Cómo se puede saber el espacio libre de un sistema de ficheros? ¿Qué
+comando has utilizado y con qué opciones?
+El comando df sin ninguna flag ya nos muestra el espacio libre en la columna
+"Avail". Si queremos que la lectura del espacio sea mas sencilla podemos usar
+la flag -h o --human-readable, que nos muestra la size como potencias de 1024 (en GB)
+
+#df -h
+Filesystem      Size  Used Avail Use% Mounted on
+udev            3.4G     0  3.4G   0% /dev
+tmpfs           695M  1.7M  694M   1% /run
+/dev/nvme0n1p8  125G   63G   56G  54% /
+tmpfs           3.4G     0  3.4G   0% /dev/shm
+tmpfs           5.0M  4.0K  5.0M   1% /run/lock
+/dev/nvme0n1p1   96M   49M   48M  51% /boot/efi
+/dev/loop1      117M  117M     0 100% /snap/core/14399
+/dev/loop3      128K  128K     0 100% /snap/bare/5
+/dev/loop2       58M   58M     0 100% /snap/alacritty/46
+/dev/loop4      147M  147M     0 100% /snap/chromium/2254
+/dev/loop0       82M   82M     0 100% /snap/gtk-common-themes/1534
+/dev/loop5      147M  147M     0 100% /snap/chromium/2238
+/dev/loop6      170M  170M     0 100% /snap/spotify/60
+/dev/loop7      170M  170M     0 100% /snap/spotify/58
+/dev/loop8       23M   23M     0 100% /snap/dm-tools/164
+/dev/loop9      447M  447M     0 100% /snap/gnome-42-2204/44
+/dev/loop10     347M  347M     0 100% /snap/gnome-3-38-2004/119
+/dev/loop11      56M   56M     0 100% /snap/cups/836
+/dev/loop13      82M   82M     0 100% /snap/discord/145
+/dev/loop12      73M   73M     0 100% /snap/core22/444
+/dev/loop14      56M   56M     0 100% /snap/core18/2632
+/dev/loop15      82M   82M     0 100% /snap/discord/143
+/dev/loop16     292M  292M     0 100% /snap/dbeaver-ce/215
+/dev/loop17      56M   56M     0 100% /snap/core18/2654
+/dev/loop18      73M   73M     0 100% /snap/core22/310
+/dev/loop20     415M  415M     0 100% /snap/gnome-42-2204/29
+/dev/loop19     347M  347M     0 100% /snap/gnome-3-38-2004/115
+/dev/loop21      64M   64M     0 100% /snap/core20/1695
+/dev/loop22      92M   92M     0 100% /snap/gtk-common-themes/1535
+/dev/loop23     288M  288M     0 100% /snap/dbeaver-ce/214
+/dev/loop24      64M   64M     0 100% /snap/core20/1738
+/dev/loop25     165M  165M     0 100% /snap/gnome-3-28-1804/161
+/dev/loop26     1.0M  1.0M     0 100% /snap/lsd/62
+/dev/loop27      56M   56M     0 100% /snap/cups/872
+tmpfs           695M  3.3M  692M   1% /run/user/1000
+
+2.
+sl_pr se trata de un soft link y hl_pr es un hard link.
+
+stat pr.txt:
+Inodo: 7216090
+Tipo de fichero: Regular File
+Links: 2
+
+stat sl_pr:
+Inodo: 7216099
+Tipo de fichero: Symbolic link
+Links: 1
+
+stat hl_pr:
+Inodo: 7216090
+Tipo de fichero: Regular file
+Links: 2
+
+Los ficheros pr.txt y hl_pr tienen el mismo número de links: 2, ya que son dos 
+hard-links que referencian directamente al mismo inodo. En cambio, el fichero
+sl_pr solo tiene un link, ya que por tratarse de un soft-link apunta a un inodo que
+contiene el nombre del fichero destino, NO directamente al mismo inodo que pr.txt.
+
+
+Ejecuta los comandos cat, namei y readlink sobre sl_pr y sobre hl_pr:
+
+#cat sl_pr
+"esto es una prueba"
+
+#namei sl_pr
+f: sl_pr
+ l sl_pr -> pr.txt
+   - pr.txt
+
+#readlink sl_pr
+pr.txt
+ 
+------
+
+#cat hl_pr
+"esto es una prueba"
+
+#namei hl_pr
+f: hl_pr
+ - hl_pr
+
+#readlink hl_pr
+
+En namei de sl_pr se observa como hay un enlaze hacia pr.txt, cosa que se puede ver también 
+en readlink que nos indica pr.txt. Por otro lado, hl_pr no tiene enlaze, por lo que readlink
+no devuelve nada.
+
+Elimina ahora el fichero pr.txt y vuelve a ejecutar los comandos stat, cat, namei
+y readlink tanto sobre sl_pr como hl_pr.
+
+#stat sl_pr
+  File: sl_pr -> pr.txt
+  Size: 6         	Blocks: 0          IO Block: 4096   symbolic link
+Device: 10308h/66312d	Inode: 7216099     Links: 1
+Access: (0777/lrwxrwxrwx)  Uid: ( 1000/  ismael)   Gid: ( 1000/  ismael)
+Access: 2022-12-19 00:22:25.654016237 +0100
+Modify: 2022-12-19 00:22:23.901968227 +0100
+Change: 2022-12-19 00:22:23.901968227 +0100
+ Birth: 2022-12-19 00:22:23.901968227 +0100
+
+#cat sl_pr
+cat: sl_pr: No such file or directory
+
+#namei sl_pr
+f: sl_pr
+ l sl_pr -> pr.txt
+     pr.txt - No such file or directory
+
+#readlink sl_pr
+pr.txt
+
+#stat hl_pr
+  File: hl_pr
+  Size: 25        	Blocks: 8          IO Block: 4096   regular file
+Device: 10308h/66312d	Inode: 7216090     Links: 1
+Access: (0644/-rw-r--r--)  Uid: ( 1000/  ismael)   Gid: ( 1000/  ismael)
+Access: 2022-12-19 00:36:41.662002623 +0100
+Modify: 2022-12-19 00:21:12.092010370 +0100
+Change: 2022-12-19 00:43:16.933939159 +0100
+ Birth: 2022-12-19 00:21:12.092010370 +0100
+
+#cat hl_pr
+“esto es una prueba”
+
+#namei hl_pr
+f: hl_pr
+ - hl_pr
+
+#readlink hl_pr
+
+En el caso de hl_pr el resultado no ha cambiado para nada. El inodo al que hacia referencia
+pr.txt no ha sido eliminado del sistema, ya que solo se elimina cuando el contador de referencias
+llega a 0, y aun tiene la referencia de hl_pr. Por otro lado sl_pr, que se trataba de un soft-link
+a pr.txt, como que ya no existe pr.txt se ve al hacer cat que no existe al fichero al que hace 
+referencia.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
